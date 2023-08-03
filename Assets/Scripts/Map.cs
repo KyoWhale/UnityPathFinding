@@ -4,16 +4,30 @@ using UnityEngine;
 
 public class Map : MonoBehaviour
 {
+    public static Map instance;
+    public MapCell startCell;
+    public MapCell destinationCell;
+
     public int width = 10;
     public int height = 10;
 
     public MapCell[,] map;
 
-    public void Start()
+    private void Awake()
     {
-        Camera.main.transform.position = new Vector3(height/2, 10, width/2);
+        instance = this;
+    }
+
+    private void Start()
+    {
+        SetCameraPosition();
         InitializeCellData();
-        InitializeObstacles();
+        // InitializeObstacles();
+    }
+
+    private void SetCameraPosition()
+    {
+        Camera.main.transform.position = new Vector3(height / 2, 10, width / 2);
     }
 
     private void InitializeCellData()
@@ -41,6 +55,8 @@ public class Map : MonoBehaviour
                     cell.transform.localPosition = new Vector3(i, 0, j);
                     cell.transform.localScale = Vector3.one * 0.9f;
                     map[i,j] = cell.AddComponent<MapCell>();
+                    map[i,j].x = j;
+                    map[i,j].y = i;
                 }
             }
         }
@@ -54,6 +70,35 @@ public class Map : MonoBehaviour
             {
 
             }
+        }
+    }
+
+    public bool IsObstacle(int x, int y)
+    {
+        if (x < 0 || map.GetUpperBound(1) < x || y < 0 || map.GetUpperBound(0) < y)
+        {
+            return true;
+        }
+
+        return map[y, x].type == CellType.Obstacle;
+    }
+    
+    public MapCell GetCell(int x, int y)
+    {
+        if (x < 0 || map.GetUpperBound(1) < x || y < 0 || map.GetUpperBound(0) < y)
+        {
+            return null;
+        }
+
+        return map[y, x];
+    }
+
+    public void SetCellType(int x, int y, CellType type)
+    {
+        var cell = GetCell(x, y);
+        if (cell != null)
+        {
+            cell.SetType(type);
         }
     }
 }
