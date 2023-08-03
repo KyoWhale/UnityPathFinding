@@ -37,25 +37,26 @@ public class MinHeap<T> where T : IComparable<T>
         _heap.RemoveAt(Count-1);
 
         int current = 0;
-        while (true)
+        while (current < Count)
         {
             int left = (current * 2) + 1;
             int right = (current * 2) + 2;
-            if (_heap[current].CompareTo(_heap[left]) > 0)
+            if (left < Count && _heap[current].CompareTo(_heap[left]) > 0)
             {
                 Swap(current, left);
                 current = left;
                 continue;
             }
-            if (_heap[current].CompareTo(_heap[right]) > 0)
+            if (right < Count && _heap[current].CompareTo(_heap[right]) > 0)
             {
                 Swap(current, right);
                 current = right;
                 continue;
             }
-            
-            return temp;
+            break;
         }
+
+        return temp;
     }
 
     private void Swap(int index1, int index2)
