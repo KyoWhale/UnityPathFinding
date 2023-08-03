@@ -2,35 +2,36 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BreadthFirstSearch : PathFinder
+public class BreadthFirstSearch : Pathfinder
 {
-    protected override void CalculateCost(Node node)
+    protected override List<Node> SearchNeighbor(Node current)
     {
-        if (node.previous == null)
+        int width = Map.instance.width;
+        int height = Map.instance.height;
+        List<Node> newNodes = new List<Node>();
+
+        int[] deltaX = {1, 0, -1, 0};
+        int[] deltaY = {0, 1, 0, -1};
+        for (int i = 0; i < 4; ++i)
         {
-            node.cost = 1;
-            return;
+            int newX = current.x + deltaX[i];
+            int newY = current.y + deltaY[i];
+            if (newX < 0 || width <= newX || newY < 0 || height <= newY)
+            {
+                continue;
+            }
+            if (Map.instance.IsObstacle(newX, newY))
+            {
+                continue;
+            }
+
+            Node newNode = new Node(newX, newY, current.cost + 10, current);
+            if (_visitedNodes.Contains(newNode) == false)
+            {
+                newNodes.Add(newNode);
+            }
         }
 
-        switch (node.direction)
-        {
-            case Direction.Down:
-            case Direction.Up:
-            case Direction.Left:
-            case Direction.Right:
-                node.cost = node.previous.cost + 10;
-                break;
-            case Direction.LeftDown:
-            case Direction.LeftUp:
-            case Direction.RightDown:
-            case Direction.RightUp:
-                node.cost = node.previous.cost + 14;
-                break;
-        }
-    }
-
-    protected override List<Node> SearchFrom(Node current)
-    {
-        throw new System.NotImplementedException();
+        return newNodes;
     }
 }
