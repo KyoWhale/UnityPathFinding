@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Unity;
+using UnityEngine;
 
 public class MinHeap<T> where T : IComparable<T>
 {
@@ -8,6 +10,20 @@ public class MinHeap<T> where T : IComparable<T>
     public int Count
     {
         get => _heap.Count;
+    }
+
+    public void Add(T element)
+    {
+        Push(element);
+    }
+
+    public T Peak()
+    {
+        if (Count == 0)
+        {
+            return default(T);
+        }
+        return _heap[0];
     }
 
     public void Push(T element)
@@ -19,8 +35,10 @@ public class MinHeap<T> where T : IComparable<T>
         {
             int parent = (current-1) / 2;
 
-            if (_heap[current].CompareTo(_heap[parent]) > 0)
+            if (_heap[current].CompareTo(_heap[parent]) >= 0)
+            {
                 break;
+            }
 
             Swap(current, parent);
             current = parent;
@@ -30,30 +48,37 @@ public class MinHeap<T> where T : IComparable<T>
     public T Pop()
     {
         if (Count == 0)
+        {
             return default(T);
+        }
 
+        int count = Count; // 캐싱
         T temp = _heap[0];
-        _heap[0] = _heap[Count-1];
-        _heap.RemoveAt(Count-1);
+        _heap[0] = _heap[count-1];
+        _heap.RemoveAt(count-1);
+        --count;
 
         int current = 0;
-        while (current < Count)
+        while (true)
         {
             int left = (current * 2) + 1;
             int right = (current * 2) + 2;
-            if (left < Count && _heap[current].CompareTo(_heap[left]) > 0)
+            int next = current;
+            if (left < count && _heap[next].CompareTo(_heap[left]) >= 0)
             {
-                Swap(current, left);
-                current = left;
-                continue;
+                next = left;
             }
-            if (right < Count && _heap[current].CompareTo(_heap[right]) > 0)
+            if (right < count && _heap[next].CompareTo(_heap[right]) >= 0)
             {
-                Swap(current, right);
-                current = right;
-                continue;
+                next = right;
             }
-            break;
+            if (next == current)
+            {
+                break;
+            }
+
+            Swap(current, next);
+            current = next;
         }
 
         return temp;
