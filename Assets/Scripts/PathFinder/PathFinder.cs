@@ -10,9 +10,9 @@ public enum Direction
 
 public class Node : IComparable<Node>
 {
-    public Node previous;
     public int x, y;
-    public int cost;
+    public int cost = 0;
+    public Node previous = null;
 
     public Node() { }
 
@@ -30,7 +30,7 @@ public class Node : IComparable<Node>
         this.previous = previous;
     }
 
-    public int CompareTo(Node other)
+    public virtual int CompareTo(Node other)
     {
         return cost - other.cost;
     }
@@ -49,18 +49,34 @@ public class Node : IComparable<Node>
     {
         return HashCode.Combine(x, y);
     }
+
+    public override string ToString()
+    {
+        return $"({x},{y}) : {cost}\n";
+    }
 }
 
 public abstract class Pathfinder : MonoBehaviour
 {
+    protected int mapWidth;
+    protected int mapHeight;
+
     protected Node _startNode;
     protected Node _endNode;
 
     protected MinHeap<Node> _openNodes = new MinHeap<Node>();
-    protected HashSet<Node> _visitedNodes = new HashSet<Node>();
+    protected HashSet<Node> _closedNodes = new HashSet<Node>();
 
     private float waitingTime = 0.1f;
     protected WaitForSeconds _wait;
+
+    public bool canDiagonalMove = true;
+    protected int _directionLength;
+
+    protected readonly int[] DIRECTION_X = {1, 0, -1, 0, 1, -1, -1, 1};
+    protected readonly int[] DIRECTION_Y = {0, 1, 0, -1, 1, 1, -1, -1};
+    public const int STRAIGHT_COST = 10;
+    public const int DIAGONAL_COST = 14;
 
     private void Start()
     {
@@ -73,31 +89,34 @@ public abstract class Pathfinder : MonoBehaviour
         StartCoroutine(FindPath());
     }
 
-    private void SetNodes()
+    protected virtual void SetNodes()
     {
         if (Map.instance == null || Map.instance.startCell == null || Map.instance.destinationCell == null)
         {
-            Debug.LogError("No start or destination node");
-            _startNode = new Node(0, 0);
-            _endNode = new Node(Map.instance.width - 1, Map.instance.height - 1);
+            Debug.LogError("맵 인스턴스 혹은 시작 셀이나 끝 셀을 올바르게 설정해주시기 바랍니다.");
+            gameObject.SetActive(false);
             return;
         }
+
+        mapWidth = Map.instance.width;
+        mapHeight = Map.instance.height;
         _startNode = new Node(Map.instance.startCell.x, Map.instance.startCell.y);
         _endNode = new Node(Map.instance.destinationCell.x, Map.instance.destinationCell.y);
-        Debug.Log(GetType().ToString() + _startNode.x + ", " + _startNode.y);
+        _directionLength = canDiagonalMove ? 8 : 4;
     }
 
     private IEnumerator FindPath()
     {
-        _openNodes.Push(_startNode);
+        _openNodes.Add(_startNode);
         while(_openNodes.Count > 0)
         {
             Node currentNode = _openNodes.Pop();
-            if (_visitedNodes.Contains(currentNode))
+            if (_closedNodes.TryGetValue(currentNode, out var actualValue) && currentNode.CompareTo(actualValue) >= 0)
             {
                 continue;
             }
-            _visitedNodes.Add(currentNode);
+
+            SetCellInfo(currentNode, CellType.Searching);
 
             var newNodes = SearchNeighbor(currentNode);
             foreach (var node in newNodes)
@@ -107,12 +126,13 @@ public abstract class Pathfinder : MonoBehaviour
                     IteratePath(node);
                     yield break;
                 }
-                _openNodes.Push(node);
-                Map.instance.SetCellType(node.x, node.y, CellType.OpenList);
+                _openNodes.Add(node);
+                SetCellInfo(node, CellType.OpenList);
                 yield return _wait;
             }
 
-            Map.instance.SetCellType(currentNode.x, currentNode.y, CellType.Visited);
+            _closedNodes.Add(currentNode);
+            SetCellInfo(currentNode, CellType.Visited);
             yield return _wait;
         }
     }
@@ -120,11 +140,21 @@ public abstract class Pathfinder : MonoBehaviour
     protected abstract List<Node> SearchNeighbor(Node current);
     private void IteratePath(Node endNode)
     {
-        var current = endNode;
-        while (current != null)
+        var currentNode = endNode;
+        while (currentNode != null)
         {
-            Map.instance.SetCellType(current.x, current.y, CellType.Complete);
-            current = current.previous;
+            SetCellInfo(currentNode, CellType.Path);
+            currentNode = currentNode.previous;
         }
+    }
+
+    private void SetCellInfo(Node node, CellType cellType)
+    {
+        if (Map.instance == null)
+        {
+            return;
+        }
+        Map.instance.SetCellType(node.x, node.y, cellType);
+        Map.instance.SetCellText(node.x, node.y, node.ToString());
     }
 }
