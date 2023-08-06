@@ -590,9 +590,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a282c9e3276f4a7287618e0f85e9c24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CellPrefab: {fileID: -3890549354863412232, guid: e4e9ef2208bef41f6b49c3343ac7178a, type: 3}
   startCell: {fileID: 0}
   destinationCell: {fileID: 0}
-  width: 10
+  width: 15
   height: 10
 --- !u!1 &235240609
 GameObject:
@@ -1537,8 +1538,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1599431832}
   - component: {fileID: 1599431835}
-  - component: {fileID: 1599431834}
   - component: {fileID: 1599431833}
+  - component: {fileID: 1599431834}
   m_Layer: 0
   m_Name: Pathfinder
   m_TagString: Untagged
@@ -1573,6 +1574,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a42a8fdd65a674f2286affe607dc692c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  canDiagonalMove: 1
 --- !u!114 &1599431834
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1585,6 +1587,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efc8c423257bc4e539c466e5a08a1a3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  canDiagonalMove: 1
 --- !u!114 &1599431835
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1597,6 +1600,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0bdf128a6ea6f4f0584e4d171163ec10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  canDiagonalMove: 1
 --- !u!1 &1606696200
 GameObject:
   m_ObjectHideFlags: 0

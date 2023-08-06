@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public enum CellType
 {
-    Start, Space, OpenList, Obstacle, Destination, Complete, Visited
+    Start, Space, OpenList, Obstacle, Destination, Path, Visited, Searching
 }
 
 public class MapCell : MonoBehaviour
@@ -14,10 +15,12 @@ public class MapCell : MonoBehaviour
     public int y { get; set; }
 
     private MeshRenderer _meshRenderer;
+    private TMP_Text _text;
 
     private void Awake()
     {
         _meshRenderer = gameObject.GetComponent<MeshRenderer>();
+        _text = gameObject.GetComponentInChildren<TMP_Text>();
     }
 
     private void OnMouseEnter()
@@ -105,10 +108,13 @@ public class MapCell : MonoBehaviour
         switch (type)
         {
             case CellType.Start:
-            case CellType.Complete:
+            case CellType.Searching:
+            case CellType.Path:
                 _meshRenderer.material.color = Color.green;
                 break;
             case CellType.Visited:
+                _meshRenderer.material.color = new Color(.5f, .7f, .5f, 1);
+                break;
             case CellType.OpenList:
                 _meshRenderer.material.color = Color.cyan;
                 break;
@@ -123,5 +129,10 @@ public class MapCell : MonoBehaviour
                 _meshRenderer.material.color = Color.white;
                 break;
         }
+    }
+
+    public void SetText(string text)
+    {
+        _text.text = text;
     }
 }

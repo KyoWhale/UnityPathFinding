@@ -5,8 +5,9 @@ using UnityEngine;
 public class Map : MonoBehaviour
 {
     public static Map instance;
-    public MapCell startCell;
-    public MapCell destinationCell;
+    [SerializeField] private MapCell CellPrefab;
+    [HideInInspector] public MapCell startCell;
+    [HideInInspector] public MapCell destinationCell;
 
     public int width = 10;
     public int height = 10;
@@ -27,7 +28,7 @@ public class Map : MonoBehaviour
 
     private void SetCameraPosition()
     {
-        Camera.main.transform.position = new Vector3(height / 2, 10, width / 2);
+        Camera.main.transform.position = new Vector3(width / 2, 10, height / 2);
     }
 
     private void InitializeCellData()
@@ -49,12 +50,12 @@ public class Map : MonoBehaviour
                 column.transform.SetParent(transform);
                 for (int j = 0; j < width; ++j)
                 {
-                    GameObject cell = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    MapCell cell = Instantiate(CellPrefab, Vector3.zero, Quaternion.identity);
                     cell.name = $"({i},{j})";
                     cell.transform.SetParent(column.transform);
-                    cell.transform.localPosition = new Vector3(i, 0, j);
+                    cell.transform.localPosition = new Vector3(j, 0, i);
                     cell.transform.localScale = Vector3.one * 0.9f;
-                    map[i,j] = cell.AddComponent<MapCell>();
+                    map[i,j] = cell;
                     map[i,j].x = j;
                     map[i,j].y = i;
                 }
@@ -99,6 +100,15 @@ public class Map : MonoBehaviour
         if (cell != null)
         {
             cell.SetType(type);
+        }
+    }
+
+    public void SetCellText(int x, int y, string text)
+    {
+        var cell = GetCell(x, y);
+        if (cell != null)
+        {
+            cell.SetText(text);
         }
     }
 }
